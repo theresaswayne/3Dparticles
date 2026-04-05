@@ -2,6 +2,7 @@
 //@File(label = "Segmented image input directory", style = "directory") segInputDir
 //@File(label = "Output directory", style = "directory") outputDir
 //@String (label = "File suffix", value = ".tif") fileSuffix
+//@String (label = "Object Name", value = "LD") objectName
 
 // ImageJ/Fiji script to process a batch of images
 // Theresa Swayne, 2025-6
@@ -52,7 +53,7 @@ print("Starting");
 run("3D Manager Options", "volume feret centroid_(pix) centroid_(unit) distance_to_surface objects radial_distance distance_between_centers=0 distance_max_contact=0 drawing=Contour use_0");
 
 // Call the processFolder function, including the parameters collected at the beginning of the script
-processFolder(imageInputDir, segInputDir, outputDir, fileSuffix);
+processFolder(imageInputDir, segInputDir, outputDir, fileSuffix, objectName);
 
 // Clean up images and get out of batch mode
 
@@ -71,7 +72,7 @@ print("Finished");
 
 // ---- Functions ----
 
-function processFolder(imginput, seginput, output, suffix) {
+function processFolder(imginput, seginput, output, suffix, objname) {
 
 	// this function searches for files matching the criteria and sends them to the processFile function
 	filenum = -1;
@@ -81,17 +82,17 @@ function processFolder(imginput, seginput, output, suffix) {
 	list = Array.sort(list);
 	for (i = 0; i < list.length; i++) {
 		if(File.isDirectory(imginput + File.separator + list[i])) {
-			processFolder(imginput + File.separator + list[i], seginput, output, suffix); // handles nested folders
+			processFolder(imginput + File.separator + list[i], seginput, output, suffix, objname); // handles nested folders
 		}
 		if(endsWith(list[i], suffix)) {
 			filenum = filenum + 1;
-			processFile(imginput, seginput, output, list[i], filenum); // passes the filename and parameters to the processFile function
+			processFile(imginput, seginput, output, list[i], filenum, objname); // passes the filename and parameters to the processFile function
 		}
 	}
 } // end of processFolder function
 
 
-function processFile(imgInputFolder, segInputFolder, outputFolder, imgFile, fileNumber) {
+function processFile(imgInputFolder, segInputFolder, outputFolder, imgFile, fileNumber, objName) {
 	
 	run("Fresh Start");
 	// this function processes a single image
@@ -180,14 +181,14 @@ function processFile(imgInputFolder, segInputFolder, outputFolder, imgFile, file
 			Ext.Manager3D_DeselectAll();
 			Ext.Manager3D_Count(objCount); // number of objects
 			
-			logString = "Found " + objCount + " objects in image " + basename;
+			logString = "Found " + objCount + " " + objName + " objects in image " + basename;
 			File.append(logString, logFile);
 			//print("Found", objCount, "objects in image", basename);
 			
 			Ext.Manager3D_Measure(); 
 			// save results; M is prepended whether you want it or not
 			//Ext.Manager3D_SaveResult("M",subFolder + "allMeas.csv");
-			Ext.Manager3D_SaveResult("M", outputDir + File.separator + basename + "_results.csv");
+			Ext.Manager3D_SaveResult("M", outputDir + File.separator + basename + "_" + objName + "_results.csv");
 			Ext.Manager3D_CloseResult("M");
 			
 			// save results
