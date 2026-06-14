@@ -48,11 +48,9 @@ showMessage("Finished.");
 run("Clear Results");
 print("Finished in",(1000*(getTime() - startTime)),"seconds"); 
 
-
 // save Log
 selectWindow("Log");
 saveAs("text", outDir + File.separator + timeString + "_Log.txt");
-
 
 // ---- Function for processing a folder
 
@@ -169,18 +167,19 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 	
 	// ---- Measure distances ----
 
+	output3DMgrName = timeString+"_"+imageBasename + "_3dMgrResults.csv";
+	outputDianaName = timeString+"_"+imageBasename+"_DianaResults.csv";
+
 	// only if there are objects in both channels
 	if (!objAEmpty && !objBEmpty) {
 		
 		// Using 3D Mgr
 		run("3D Distances", "image_a=ObjA image_b=ObjB distance=DistBorderBorderUnit distance_maximum="+dist);
-		output3DMgrName = timeString+"_"+imageBasename + "_3dMgrResults.csv";
 		saveAs("Results", outDir + File.separator + output3DMgrName);
 	
 		// Using DiAnA
 		// generate distance results (center and edge) for all objects, 1 column per measurement type
 		run("DiAna_Analyse", "img1=ObjA img2=ObjB lab1=ObjA lab2=ObjB adja kclosest="+objBCount);
-		outputDianaName = timeString+"_"+imageBasename+"_DianaResults.csv";
 		saveAs("Results", outDir+File.separator+outputDianaName);
 		
 		}
@@ -205,6 +204,7 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 	while (isOpen(outputDianaName)) {
 	 	selectWindow(outputDianaName); 
 	 	run("Close" );
+	}
 
 	while (isOpen(output3DMgrName)) {
 	 	selectWindow(output3DMgrName); 
@@ -212,8 +212,6 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 	run("Collect Garbage");
 	}
 } // end processImage function
-
-
 
 
 // CDF with mask
