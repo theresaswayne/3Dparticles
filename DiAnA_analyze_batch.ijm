@@ -7,7 +7,7 @@
 //@ Double(label = "Distance criterion (µm):", value = 0.9) dist
 
 // Take 2 label image stacks representing particles in 2 channels
-// Use DiAnA to measure minimum edge-edge distances 
+// Use DiAnA to generate cumulative distance functions (CDF)  
 //    from objects in channel 1 to objects in channel 2
 
 // Limitations: Assumes names in format: aCTY132-6hrDTT-013_roi_1_seg.tif 
@@ -166,22 +166,18 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 		objBCount = 0;
 	}
 	
-	// ---- Measure distances ----
+	// ---- Generate CDF ----
 
-	output3DMgrName = timeString+"_"+imageBasename + "_3dMgrResults.csv";
-	outputDianaName = timeString+"_"+imageBasename+"_DianaResults.csv";
+	outputDianaName = timeString+"_"+imageBasename + "_CDF_Results.csv";
 
 	// only if there are objects in both channels
 	if (!objAEmpty && !objBEmpty) {
 		
-		// Using 3D Mgr
-		run("3D Distances", "image_a=ObjA image_b=ObjB distance=DistBorderBorderUnit distance_maximum="+dist);
-		saveAs("Results", outDir + File.separator + output3DMgrName);
-	
-		// Using DiAnA
-		// generate distance results (center and edge) for all objects, 1 column per measurement type
-		run("DiAna_Analyse", "img1=ObjA img2=ObjB lab1=ObjA lab2=ObjB adja kclosest="+objBCount);
-		saveAs("Results", outDir+File.separator+outputDianaName);
+		// CDF vs random with no mask
+		run("DiAna_Analyse", "img1=ObjA img2=ObjB lab1=ObjA lab2=ObjB shuffle");	
+		
+		
+		//saveAs("Results", outDir + File.separator + outputDianaName);
 		
 		}
 	else {
@@ -207,9 +203,6 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 	 	run("Close" );
 	}
 
-	while (isOpen(output3DMgrName)) {
-	 	selectWindow(output3DMgrName); 
-	 	run("Close" );
 	run("Collect Garbage");
 	}
 } // end processImage function
