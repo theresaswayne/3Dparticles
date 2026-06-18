@@ -7,8 +7,8 @@
 //@ Double(label = "Distance criterion (µm):", value = 0.9) dist
 
 // Take 2 label image stacks representing particles in 2 channels
-// Use DiAnA to generate cumulative distance functions (CDF)  
-//    from objects in channel 1 to objects in channel 2
+// Use DiAnA to generate cumulative distance functions (CDF) and shuffled results (no mask)
+//    from objects in image to objects in image B
 
 // Limitations: Assumes names in format: aCTY132-6hrDTT-013_roi_1_seg.tif 
 
@@ -107,13 +107,6 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 		return; // to next image in folder loop
 	}
 	
-	// ---- 3D ROI Manager Setup ----
-	
-	// initialize 3D functions
-	run("3D Manager");
-	Ext.Manager3D_Reset();
-	//run("3D Manager Options", "volume feret centroid_(pix) centroid_(unit) distance_to_surface objects radial_distance distance_between_centers=0 distance_max_contact=0 drawing=Contour use_0");
-	
 	// check for absence of objects in each channel
 	
 	selectWindow("ObjA");
@@ -136,39 +129,10 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 		objBEmpty = false;
 	}
 	
-	// Add Ch1 objects to the 3D Mgr with appropriate names
-	
-	if (!objAEmpty) {
-		// add ObjA objects and rename
-		selectWindow("ObjA");
-		Ext.Manager3D_AddImage();
-		Ext.Manager3D_SelectAll();
-		Ext.Manager3D_Rename(objAName);
-		Ext.Manager3D_DeselectAll();
-		Ext.Manager3D_Count(objACount); // number of objects A
-	}
-	else {
-		objACount = 0;
-	}
-	
-	// Add Ch2 objects to the 3D Mgr with appropriate names
-	
-	if (!objBEmpty) {
-		selectWindow("ObjB");
-		Ext.Manager3D_AddImage();
-		Ext.Manager3D_Count(allCount); // total number of objects
-		Ext.Manager3D_SelectFor(objACount, allCount, 1); // select all the objects B
-		Ext.Manager3D_Rename(objBName);
-		Ext.Manager3D_DeselectAll();
-		objBCount = allCount - objACount;
-	}
-	else {
-		objBCount = 0;
-	}
 	
 	// ---- Generate CDF ----
 
-	outputDianaName = timeString+"_"+imageBasename + "_CDF_Results.csv";
+	outputDianaName = timeString+"_"+imageBasename + "_CDF_plot.png";
 
 	// only if there are objects in both channels
 	if (!objAEmpty && !objBEmpty) {
@@ -176,7 +140,8 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 		// CDF vs random with no mask
 		run("DiAna_Analyse", "img1=ObjA img2=ObjB lab1=ObjA lab2=ObjB shuffle");	
 		
-		
+		selectWindow("Coloc_Shuffle");
+		saveAs("PNG",outDir + File.separator + outputDianaName);
 		//saveAs("Results", outDir + File.separator + outputDianaName);
 		
 		}
