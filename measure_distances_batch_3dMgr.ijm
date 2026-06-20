@@ -10,10 +10,11 @@
 // Use DiAnA to measure minimum edge-edge distances 
 //    from objects in channel 1 to objects in channel 2
 
-// Limitations: Assumes names in format: aCTY132-6hrDTT-013_roi_1_seg.tif 
+// Limitations: Assumes the two objects have same filenames (as they reside in different folders)
 
 // ---- Setup ----
 
+setBatchMode("true");
 // clean up images and memory
 while (nImages>0) { // clean up open images
 	selectImage(nImages);
@@ -28,8 +29,9 @@ while (isOpen("Results")) {
      run("Close" );
 }
 
-// options: important to NOT show as IJ results table beause it conflicts with the other table
+// options: if creating other tables, remove the "display" parameter so 3dMgr will NOT show as IJ results table
 run("3D Manager Options", "volume feret centroid_(pix) centroid_(unit) distance_to_surface objects radial_distance distance_between_centers=0 distance_max_contact=0 drawing=Contour use_0");
+//run("3D Manager Options", "volume feret centroid_(pix) centroid_(unit) distance_to_surface objects radial_distance distance_between_centers=0 distance_max_contact=0 drawing=Contour use_0 display");
 
 // get time
 getDateAndTime(year, month, dayOfWeek, dayOfMonth, hour, minute, second, msec);
@@ -39,7 +41,7 @@ timeString = "" + year + "-" + month + "-" + dayOfMonth + "-" + hour + "-" + min
 summaryName = timeString + "_results.csv";
 
 // dataset counter
-n = 0;
+//n = 0;
 
 
 // ---- Run ----
@@ -48,17 +50,18 @@ print("Analyzing distances from ",objAName,"(object A) to",objBName,"(object B)"
 processFolder(objAFolder, objBFolder, outDir, suffix, objAName, objBName, dist); 
 showMessage("Finished.");
 run("Clear Results");
-print("Finished in",(1000*(getTime() - startTime)),"seconds"); 
+elapsedTime = (getTime() - startTime)/1000;
+print("Finished in",elapsedTime,"seconds"); 
 
 // save Log
+logName = "" + timeString + "_Log.txt";
 selectWindow("Log");
-logName = "" + timeString + "_Log.txt"
 saveAs("text", outDir + File.separator + logName);
+setBatchMode("false");
 
 // ---- Function for processing a folder
 
 function processFolder(inputObjA, inputObjB, outputdir, suffix, objAName, objBName, distance) {
-	{
 	list = getFileList(inputObjA);
 	for (i=0; i<list.length; i++) {
 		if (endsWith(list[i], suffix)) {
@@ -174,7 +177,7 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 	//outputDianaName = timeString+"_"+imageBasename+"_DianaResults.csv";
 
 	output3DMgrName = imageBasename + "_3dMgrResults.csv";
-	outputDianaName = imageBasename+"_DianaResults.csv";
+	//outputDianaName = imageBasename+"_DianaResults.csv";
 	// only if there are objects in both channels
 	if (!objAEmpty && !objBEmpty) {
 		
@@ -184,12 +187,19 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 	
 		// Using DiAnA
 		// generate distance results (center and edge) for all objects, 1 column per measurement type
-		run("DiAna_Analyse", "img1=ObjA img2=ObjB lab1=ObjA lab2=ObjB adja kclosest="+objBCount);
-		saveAs("Results", outDir+File.separator+outputDianaName);
+		//run("DiAna_Analyse", "img1=ObjA img2=ObjB lab1=ObjA lab2=ObjB adja kclosest="+objBCount);
+		//saveAs("Results", outDir+File.separator+outputDianaName);
 		
 		}
 	else {
 		print("No objects in one or both images. Distance not measured.");
+			// clean up
+		while (nImages>0) { // clean up open images
+			selectImage(nImages);
+			close();
+			}
+		Ext.Manager3D_Reset();
+		return; // go to next image
 	}
 	
 	// clean up
@@ -206,21 +216,9 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 	     run("Close" );
 	}
 
-	while (isOpen(outputDianaName)) {
-	 	selectWindow(outputDianaName); 
-	 	run("Close" );
-	}
-
 	while (isOpen(output3DMgrName)) {
 	 	selectWindow(output3DMgrName); 
 	 	run("Close" );
 	run("Collect Garbage");
 	}
 } // end processImage function
-
-
-// CDF with mask
-//run("DiAna_Analyse", "img1=[erg 1.tif] img2=[nup 1.tif] lab1=[erg 1.tif] lab2=[nup 1.tif] shuffle mask=MASK_CloseLabels");
-
-// cdf without mask (Diana sometimes crashes 2nd time you run it -or messes up the object pop so erg has only 1 )
-//run("DiAna_Analyse", "img1=[erg 1.tif] img2=[nup 1.tif] lab1=[erg 1.tif] lab2=[nup 1.tif] shuffle");
