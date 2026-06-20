@@ -28,7 +28,7 @@ while (isOpen("Results")) {
      run("Close" );
 }
 
-// options: important to NOT show as IJ results table beause it conflicts with the other table
+// options: if creating other tables (as with DiAnA), remove the "display" parameter so 3dMgr will NOT show as IJ results table
 run("3D Manager Options", "volume feret centroid_(pix) centroid_(unit) distance_to_surface objects radial_distance distance_between_centers=0 distance_max_contact=0 drawing=Contour use_0");
 
 // get time
@@ -38,27 +38,24 @@ month = month+1;
 timeString = "" + year + "-" + month + "-" + dayOfMonth + "-" + hour + "-" + minute; // must start with an empty string
 summaryName = timeString + "_results.csv";
 
-// dataset counter
-n = 0;
-
-
 // ---- Run ----
 
 print("Analyzing distances from ",objAName,"(object A) to",objBName,"(object B)");
 processFolder(objAFolder, objBFolder, outDir, suffix, objAName, objBName, dist); 
 showMessage("Finished.");
 run("Clear Results");
-print("Finished in",(1000*(getTime() - startTime)),"seconds"); 
+elapsedTime = (getTime() - startTime)/1000;
+print("Finished in",elapsedTime,"seconds"); 
 
 // save Log
+logName = "" + timeString + "_Log.txt";
 selectWindow("Log");
-logName = "" + timeString + "_Log.txt"
 saveAs("text", outDir + File.separator + logName);
+
 
 // ---- Function for processing a folder
 
 function processFolder(inputObjA, inputObjB, outputdir, suffix, objAName, objBName, distance) {
-	{
 	list = getFileList(inputObjA);
 	for (i=0; i<list.length; i++) {
 		if (endsWith(list[i], suffix)) {

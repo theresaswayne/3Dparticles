@@ -29,7 +29,7 @@ while (isOpen("Results")) {
      run("Close" );
 }
 
-// options: if creating other tables, remove the "display" parameter so 3dMgr will NOT show as IJ results table
+// options: if creating other tables (as with DiAnA), remove the "display" parameter so 3dMgr will NOT show as IJ results table
 run("3D Manager Options", "volume feret centroid_(pix) centroid_(unit) distance_to_surface objects radial_distance distance_between_centers=0 distance_max_contact=0 drawing=Contour use_0");
 //run("3D Manager Options", "volume feret centroid_(pix) centroid_(unit) distance_to_surface objects radial_distance distance_between_centers=0 distance_max_contact=0 drawing=Contour use_0 display");
 
@@ -39,9 +39,6 @@ startTime = getTime();
 month = month+1;
 timeString = "" + year + "-" + month + "-" + dayOfMonth + "-" + hour + "-" + minute; // must start with an empty string
 summaryName = timeString + "_results.csv";
-
-// dataset counter
-//n = 0;
 
 
 // ---- Run ----
