@@ -34,6 +34,7 @@ run("3D Manager Options", "volume feret centroid_(pix) centroid_(unit) distance_
 // get time
 getDateAndTime(year, month, dayOfWeek, dayOfMonth, hour, minute, second, msec);
 startTime = getTime();
+month = month+1;
 timeString = "" + year + "-" + month + "-" + dayOfMonth + "-" + hour + "-" + minute; // must start with an empty string
 summaryName = timeString + "_results.csv";
 
@@ -168,9 +169,11 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 	
 	// ---- Measure distances ----
 
-	output3DMgrName = timeString+"_"+imageBasename + "_3dMgrResults.csv";
-	outputDianaName = timeString+"_"+imageBasename+"_DianaResults.csv";
+	//output3DMgrName = timeString+"_"+imageBasename + "_3dMgrResults.csv";
+	//outputDianaName = timeString+"_"+imageBasename+"_DianaResults.csv";
 
+	output3DMgrName = imageBasename + "_3dMgrResults.csv";
+	outputDianaName = imageBasename+"_DianaResults.csv";
 	// only if there are objects in both channels
 	if (!objAEmpty && !objBEmpty) {
 		
