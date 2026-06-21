@@ -14,7 +14,7 @@
 
 // ---- Setup ----
 
-//setBatchMode(true);
+setBatchMode(true);
 // clean up images and memory
 while (nImages>0) { // clean up open images
 	selectImage(nImages);
@@ -30,7 +30,7 @@ while (isOpen("Results")) {
 }
 
 // options: if creating other tables (as with DiAnA), remove the "display" parameter so 3dMgr will NOT show as IJ results table
-run("3D Manager Options", "volume feret centroid_(pix) centroid_(unit) distance_to_surface objects radial_distance distance_between_centers=0 distance_max_contact=0 drawing=Contour use_0");
+//run("3D Manager Options", "volume feret centroid_(pix) centroid_(unit) distance_to_surface objects radial_distance distance_between_centers=0 distance_max_contact=0 drawing=Contour use_0");
 //run("3D Manager Options", "volume feret centroid_(pix) centroid_(unit) distance_to_surface objects radial_distance distance_between_centers=0 distance_max_contact=0 drawing=Contour use_0 display");
 
 // get time
@@ -46,7 +46,8 @@ n=0;
 // ---- Run ----
 
 print("Analyzing distances from ",objAName,"(object A) to",objBName,"(object B)");
-processFolder(objAFolder, objBFolder, outDir, suffix, objAName, objBName, dist); 
+n = processFolder(objAFolder, objBFolder, outDir, suffix, objAName, objBName, dist); 
+elapsedTime = (getTime() - startTime)/1000;
 showMessage("Finished.");
 run("Clear Results");
 elapsedTime = (getTime() - startTime)/1000;
@@ -56,7 +57,7 @@ print("Finished",n,"images in",elapsedTime,"seconds");
 logName = "" + timeString + "_Log.txt";
 selectWindow("Log");
 saveAs("text", outDir + File.separator + logName);
-//setBatchMode(false);
+setBatchMode(false);
 
 // ---- Function for processing a folder
 
@@ -64,19 +65,21 @@ function processFolder(inputObjA, inputObjB, outputdir, suffix, objAName, objBNa
 	list = getFileList(inputObjA);
 	for (i=0; i<list.length; i++) {
 		if (endsWith(list[i], suffix)) {
-	       	processImage(inputObjA, inputObjB, list[i], outputdir, objAName, objBName, distance);
+	       	n=n+1;
+	       	processImage(inputObjA, inputObjB, list[i], outputdir, objAName, objBName, distance, n);
 			} 
 		}
+	return n;
 	} // end processFolder function
 
 
 // ------- Function for processing an individual file
 
-function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, dist) 
+function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, dist, n) 
 	{
 	// ---- Open image from Object A folder and get name, info
 	
-	n=n+1;
+
 	print("Processing image", n, ",",name);
 
 	while (nImages>0) { // clean up open images
@@ -115,8 +118,8 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 	// ---- 3D ROI Manager Setup ----
 	
 	// initialize 3D functions
-	run("3D Manager");
-	Ext.Manager3D_Reset();
+	//run("3D Manager");
+	//Ext.Manager3D_Reset();
 	//run("3D Manager Options", "volume feret centroid_(pix) centroid_(unit) distance_to_surface objects radial_distance distance_between_centers=0 distance_max_contact=0 drawing=Contour use_0");
 	
 	// check for absence of objects in each channel
@@ -143,34 +146,34 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 	
 	// Add ChA objects to the 3D Mgr with appropriate names
 	
-	if (!objAEmpty) {
-		// add ObjA objects and rename
-		selectWindow("ObjA");
-		Ext.Manager3D_AddImage();
-		Ext.Manager3D_SelectAll();
-		Ext.Manager3D_Rename(objAName);
-		Ext.Manager3D_DeselectAll();
-		Ext.Manager3D_Count(objACount); // number of objects A
-	}
-	else {
-		objACount = 0;
-	}
+//	if (!objAEmpty) {
+//		// add ObjA objects and rename
+//		selectWindow("ObjA");
+//		Ext.Manager3D_AddImage();
+//		Ext.Manager3D_SelectAll();
+//		Ext.Manager3D_Rename(objAName);
+//		Ext.Manager3D_DeselectAll();
+//		Ext.Manager3D_Count(objACount); // number of objects A
+//	}
+//	else {
+//		objACount = 0;
+//	}
 	
 	// Add ChB objects to the 3D Mgr with appropriate names
-	
-	if (!objBEmpty) {
-		selectWindow("ObjB");
-		Ext.Manager3D_AddImage();
-		Ext.Manager3D_Count(allCount); // total number of objects
-		Ext.Manager3D_SelectFor(objACount, allCount, 1); // select all the objects B
-		Ext.Manager3D_Rename(objBName);
-		Ext.Manager3D_DeselectAll();
-		objBCount = allCount - objACount;
-	}
-	else {
-		objBCount = 0;
-	}
-	
+//	
+//	if (!objBEmpty) {
+//		selectWindow("ObjB");
+//		Ext.Manager3D_AddImage();
+//		Ext.Manager3D_Count(allCount); // total number of objects
+//		Ext.Manager3D_SelectFor(objACount, allCount, 1); // select all the objects B
+//		Ext.Manager3D_Rename(objBName);
+//		Ext.Manager3D_DeselectAll();
+//		objBCount = allCount - objACount;
+//	}
+//	else {
+//		objBCount = 0;
+//	}
+//	
 	// ---- Measure distances ----
 
 	output3DSuiteName = imageBasename + "_3dResults.csv";
@@ -180,6 +183,10 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 		
 		// Using 3D Suite
 		run("3D Distances", "image_a=ObjA image_b=ObjB distance=DistBorderBorderUnit distance_maximum="+dist);
+		// Add object names to table
+		newColName = objAName + "_Obj";
+		Table.renameColumn("LabelObj", newColName);
+
 		saveAs("Results", outDir + File.separator + output3DSuiteName);
 	
 		// Using DiAnA
@@ -195,7 +202,7 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 			selectImage(nImages);
 			close();
 			}
-		Ext.Manager3D_Reset();
+//		Ext.Manager3D_Reset();
 		return; // go to next image
 	}
 	
@@ -205,7 +212,7 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 		close();
 		}
 	
-	Ext.Manager3D_Reset();
+//	Ext.Manager3D_Reset();
 	
 	// close one or more results windows
 	while (isOpen("Results")) {

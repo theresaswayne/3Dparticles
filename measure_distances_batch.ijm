@@ -7,7 +7,7 @@
 //@ Double(label = "Distance criterion (µm):", value = 0.9) dist
 
 // Take 2 label image stacks representing particles in 2 channels
-// Use DiAnA to measure minimum edge-edge distances 
+// Use DiAnA and 3D Suite to measure minimum edge-edge distances 
 //    from objects in channel 1 to objects in channel 2
 
 // Limitations: Assumes names in format: aCTY132-6hrDTT-013_roi_1_seg.tif 
