@@ -5,7 +5,7 @@
 //@String (label = "Object Name", value = "LD") objectName
 
 // ImageJ/Fiji script to process a batch of images
-// Theresa Swayne, 2025-6
+// Theresa Swayne
 //  -------- Suggested text for acknowledgement -----------
 //   "These studies used the Confocal and Specialized Microscopy Shared Resource 
 //   of the Herbert Irving Comprehensive Cancer Center at Columbia University, 
@@ -18,8 +18,8 @@
 //	Limitation -- cannot have >1 dots in the filename
 // 	
 
-// Updated to use 3D Manager rather than 3D Object Counter as 3D OC is older and less efficient with memory -- tended to fail on a large (>100 image) dataset
-// see also https://mcib3d.frama.io/3d-suite-imagej/plugins/3DManager/3D-Manager-macros/
+// Updated to use 3D Manager 
+// see https://mcib3d.frama.io/3d-suite-imagej/plugins/3DManager/3D-Manager-macros/
 
 // ---- Setup ----
 
@@ -34,7 +34,9 @@ run("Clear Results");
 run("Bio-Formats Macro Extensions"); // support native microscope files
 
 // collect log in a table with a time/date stamp
+startTime = getTime();
 getDateAndTime(year, month, dayOfWeek, dayOfMonth, hour, minute, second, msec);
+month = month+1;
 timeString = "" + year + "-" + month + "-" + dayOfMonth + "-" + hour + "-" + minute; // have to start with empty string
 logName = timeString + "_Log.txt";
 logFile = outputDir + File.separator + logName;
@@ -43,6 +45,9 @@ if (File.exists(logFile)==false) { // start the file with headers
 	File.append(logStartString, logFile);	
 	print("Created log file");
     }
+
+// dataset counter
+n=0;
 
 // ---- Run ----
 
@@ -63,7 +68,10 @@ while (nImages > 0) { // clean up open images
 }
 //setBatchMode(false);
 run("Clear Results");
-print("Finished");
+
+elapsedTime = (getTime() - startTime)/1000;
+logString = "Finished in",elapsedTime,"sec";
+File.append(logString, logFile);
 
 // save Log
 //selectWindow("Log");
@@ -94,7 +102,7 @@ function processFolder(imginput, seginput, output, suffix, objname) {
 
 function processFile(imgInputFolder, segInputFolder, outputFolder, imgFile, fileNumber, objName) {
 	
-	run("Fresh Start");
+	run("Fresh Start"); // clears log, results, etc.
 	// this function processes a single image
 	// initialize 3D functions
 	run("3D Manager");

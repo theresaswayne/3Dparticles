@@ -7,13 +7,13 @@
 //@ Double(label = "Distance criterion (µm):", value = 0.9) dist
 
 // Take 2 label image stacks representing particles in 2 channels
-// Use ImageJ 3D Suite to measure minimum edge-edge distances 
+// Use 3D ROI Manager to count objects 
+//    and generate a table of the number of objects in channel A and channel B
 
 // Limitations: Assumes the filename format: CTY132-6hrDTT-013_roi_1-c5_resliced_seg.tif and CTY132-6hrDTT-013_roi_1-c5_resliced_seg.tif
 
 // ---- Setup ----
 
-setBatchMode(true); // faster
 // clean up images and memory
 while (nImages>0) { // clean up open images
 	selectImage(nImages);
@@ -29,8 +29,7 @@ while (isOpen("Results")) {
 }
 
 // options: if creating other tables (as with DiAnA), remove the "display" parameter so 3dMgr will NOT show as IJ results table
-//run("3D Manager Options", "volume feret centroid_(pix) centroid_(unit) distance_to_surface objects radial_distance distance_between_centers=0 distance_max_contact=0 drawing=Contour use_0");
-//run("3D Manager Options", "volume feret centroid_(pix) centroid_(unit) distance_to_surface objects radial_distance distance_between_centers=0 distance_max_contact=0 drawing=Contour use_0 display");
+run("3D Manager Options", "volume feret centroid_(pix) centroid_(unit) distance_to_surface objects radial_distance distance_between_centers=0 distance_max_contact=0 drawing=Contour use_0");
 
 // get time
 getDateAndTime(year, month, dayOfWeek, dayOfMonth, hour, minute, second, msec);
@@ -39,23 +38,35 @@ month = month+1;
 timeString = "" + year + "-" + month + "-" + dayOfMonth + "-" + hour + "-" + minute; // must start with an empty string
 summaryName = timeString + "_results.csv";
 
+
 // dataset counter
 n=0;
 
-// ---- Run ----
 
-print("Analyzing distances from ",objAName,"(object A) to",objBName,"(object B)");
+// create an output file
+outputFile = outDir + File.separator + objAName + "_" + objBName + "_counts.csv";
+headerString = "Filename," + objAName + "_Objects," + objBName + "_Objects";
+if (File.exists(outputFile)==false) { // start the file with headers
+	File.append(headerString, outputFile);	
+	print("Created output file at",outputFile);
+    }
+
+
+// ---- Run ----
+setBatchMode(true); // faster
+print("Analyzing objects:",objAName,"(object A) and",objBName,"(object B)");
 n = processFolder(objAFolder, objBFolder, outDir, suffix, objAName, objBName, dist); 
-elapsedTime = (getTime() - startTime)/1000;
+setBatchMode(false);
 showMessage("Finished.");
 run("Clear Results");
+elapsedTime = (getTime() - startTime)/1000;
 print("Finished",n,"images in",elapsedTime,"seconds"); 
 
 // save Log
 logName = "" + timeString + "_Log.txt";
 selectWindow("Log");
 saveAs("text", outDir + File.separator + logName);
-setBatchMode(false);
+
 
 // ---- Function for processing a folder
 
@@ -63,11 +74,11 @@ function processFolder(inputObjA, inputObjB, outputdir, suffix, objAName, objBNa
 	list = getFileList(inputObjA);
 	for (i=0; i<list.length; i++) {
 		if (endsWith(list[i], suffix)) {
-	       	n=n+1;
+			n=n+1;
 	       	processImage(inputObjA, inputObjB, list[i], outputdir, objAName, objBName, distance, n);
 			} 
 		}
-	return n;
+		return n;
 	} // end processFolder function
 
 
@@ -77,8 +88,7 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 	{
 	// ---- Open image from Object A folder and get name, info
 	
-
-	print("Processing image", n, ",",name);
+	print("Processing image", n, ",", name);
 
 	while (nImages>0) { // clean up open images
 		selectImage(nImages);
@@ -95,7 +105,7 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 	imageBasename = substring(objABasename, 0, dotIndex-16); // remove channel number and other info
 	selectWindow(objATitle);
 	rename("ObjA");
-	
+
 	// determine the name of the channel B file
 	objBFile = imageBasename + "-c4_resliced_seg.tif"; 
 	
@@ -116,8 +126,8 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 	// ---- 3D ROI Manager Setup ----
 	
 	// initialize 3D functions
-	//run("3D Manager");
-	//Ext.Manager3D_Reset();
+	run("3D Manager");
+	Ext.Manager3D_Reset();
 	//run("3D Manager Options", "volume feret centroid_(pix) centroid_(unit) distance_to_surface objects radial_distance distance_between_centers=0 distance_max_contact=0 drawing=Contour use_0");
 	
 	// check for absence of objects in each channel
@@ -144,64 +154,56 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 	
 	// Add ChA objects to the 3D Mgr with appropriate names
 	
-//	if (!objAEmpty) {
-//		// add ObjA objects and rename
-//		selectWindow("ObjA");
-//		Ext.Manager3D_AddImage();
-//		Ext.Manager3D_SelectAll();
-//		Ext.Manager3D_Rename(objAName);
-//		Ext.Manager3D_DeselectAll();
-//		Ext.Manager3D_Count(objACount); // number of objects A
-//	}
-//	else {
-//		objACount = 0;
-//	}
+	if (!objAEmpty) {
+		// add ObjA objects and rename
+		selectWindow("ObjA");
+		Ext.Manager3D_AddImage();
+		Ext.Manager3D_SelectAll();
+		Ext.Manager3D_Rename(objAName);
+		Ext.Manager3D_DeselectAll();
+		Ext.Manager3D_Count(objACount); // number of objects A
+	}
+	else {
+		objACount = 0;
+	}
 	
 	// Add ChB objects to the 3D Mgr with appropriate names
-//	
-//	if (!objBEmpty) {
-//		selectWindow("ObjB");
-//		Ext.Manager3D_AddImage();
-//		Ext.Manager3D_Count(allCount); // total number of objects
-//		Ext.Manager3D_SelectFor(objACount, allCount, 1); // select all the objects B
-//		Ext.Manager3D_Rename(objBName);
-//		Ext.Manager3D_DeselectAll();
-//		objBCount = allCount - objACount;
-//	}
-//	else {
-//		objBCount = 0;
-//	}
-//	
-	// ---- Measure distances ----
+	
+	if (!objBEmpty) {
+		selectWindow("ObjB");
+		Ext.Manager3D_AddImage();
+		Ext.Manager3D_Count(allCount); // total number of objects
+		Ext.Manager3D_SelectFor(objACount, allCount, 1); // select all the objects B
+		Ext.Manager3D_Rename(objBName);
+		Ext.Manager3D_DeselectAll();
+		objBCount = allCount - objACount;
+	}
+	else {
+		objBCount = 0;
+	}
+	
+	// ---- Save results ----
 
-	output3DSuiteName = imageBasename + "_3dResults.csv";
-	//outputDianaName = imageBasename+"_DianaResults.csv";
+	//output3DMgrName = timeString+"_"+imageBasename + "_3dMgrResults.csv";
+	//outputDianaName = timeString+"_"+imageBasename+"_DianaResults.csv";
+
+
+	
 	// only if there are objects in both channels
 	if (!objAEmpty && !objBEmpty) {
 		
-		// Using 3D Suite
-		run("3D Distances", "image_a=ObjA image_b=ObjB distance=DistBorderBorderUnit distance_maximum="+dist);
-		// Add object names to table
-		newColName = objAName + "_Obj";
-		Table.renameColumn("LabelObj", newColName);
+		// Save counts
+		countString = imageBasename + "," + objACount + "," + objBCount;
+		outputFile = outDir + File.separator + objAName + "_" + objBName + "_counts.csv";
+		File.append(countString, outputFile);
 
-		saveAs("Results", outDir + File.separator + output3DSuiteName);
-	
-		// Using DiAnA
-		// generate distance results (center and edge) for all objects, 1 column per measurement type
-		//run("DiAna_Analyse", "img1=ObjA img2=ObjB lab1=ObjA lab2=ObjB adja kclosest="+objBCount);
-		//saveAs("Results", outDir+File.separator+outputDianaName);
+		// Save ROIs
+		output3DMgrName = imageBasename + "_3dMgrROIs.zip";
+		Ext.Manager3D_Save(outDir + File.separator + output3DMgrName);
 		
 		}
 	else {
-		print("No objects in one or both images. Distance not measured.");
-			// clean up
-		while (nImages>0) { // clean up open images
-			selectImage(nImages);
-			close();
-			}
-//		Ext.Manager3D_Reset();
-		return; // go to next image
+		print("No objects in one or both images. Objects not counted or saved.");
 	}
 	
 	// clean up
@@ -210,7 +212,7 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 		close();
 		}
 	
-//	Ext.Manager3D_Reset();
+	Ext.Manager3D_Reset();
 	
 	// close one or more results windows
 	while (isOpen("Results")) {
@@ -218,9 +220,13 @@ function processImage(objAFolder, objBFolder, name, outDir, objAName, objBName, 
 	     run("Close" );
 	}
 
-	while (isOpen(output3DSuiteName)) {
-	 	selectWindow(output3DSuiteName); 
-	 	run("Close" );
 	run("Collect Garbage");
-	}
+	
 } // end processImage function
+
+
+// CDF with mask
+//run("DiAna_Analyse", "img1=[erg 1.tif] img2=[nup 1.tif] lab1=[erg 1.tif] lab2=[nup 1.tif] shuffle mask=MASK_CloseLabels");
+
+// cdf without mask (Diana sometimes crashes 2nd time you run it -or messes up the object pop so erg has only 1 )
+//run("DiAna_Analyse", "img1=[erg 1.tif] img2=[nup 1.tif] lab1=[erg 1.tif] lab2=[nup 1.tif] shuffle");
