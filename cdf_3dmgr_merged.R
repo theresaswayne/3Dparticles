@@ -38,16 +38,13 @@ CTY132_CON_dists <- CTY132_CON |>
   select(starts_with("V")) |> 
   unlist() |> na.omit()
 
-
 CTY132_DTT_dists <- CTY132_DTT |> 
   select(starts_with("V")) |> 
   unlist() |> na.omit()
 
-
 CTY212_CON_dists <- CTY212_CON |> 
   select(starts_with("V")) |> 
   unlist() |> na.omit()
-
 
 CTY212_DTT_dists <- CTY212_DTT |> 
   select(starts_with("V")) |> 
@@ -108,7 +105,7 @@ cdf_geno <- ggplot(all_dists, aes(x=BorderBorderDist, colour = Genotype)) +
        y = "Cumulative distance function",
        title = "Distances between Nup and Erg objects")
 
-cdf_geno
+ggsave(paste0(dataName,"_cdf_by_genotype.png"), plot=cdf_geno, width=7, height = 7)
 
 cdf_treat <- ggplot(all_dists, aes(x=BorderBorderDist, colour = Treatment)) +
   stat_ecdf(geom = "step", pad=FALSE) +
@@ -116,13 +113,16 @@ cdf_treat <- ggplot(all_dists, aes(x=BorderBorderDist, colour = Treatment)) +
        y = "Cumulative distance function",
        title = "Distances between Nup and Erg objects")
 
+ggsave(paste0(dataName,"_cdf_by_treatment.png"), plot=cdf_treat, width=7, height = 7)
+
 # statistical comparison of distributions using non-parametric Kolgomorov-Smirnov test
 # (note this is not appropriate for multiple comparisons)
 
 geno_KS <- ks.test(BorderBorderDist ~ Genotype, data = all_dists)
 treat_KS <- ks.test(BorderBorderDist ~ Treatment, data = all_dists)
 
-#geno_KS <- ks.test(BorderBorderDist ~ Genotype, data = all_dists, subset = Treatment == "Control")
+geno_KS[2]
+treat_KS[2]
 
 # multiple comparisons require kruskal wallis
 kw <- kruskal.test(BorderBorderDist ~ Genotype, data = all_dists)
