@@ -30,7 +30,7 @@ s
 cdf <- ggplot(mapping = aes(all_dists)) +
   stat_ecdf(geom = "step", pad=FALSE) +
   labs(x="Border-border distance, um",
-       y = "Cumulative distance function",
+       y = "Cumulative distribution function",
        title = "Distances between all objects in one cell")
 
 cdf
