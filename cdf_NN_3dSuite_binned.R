@@ -1,4 +1,4 @@
-# commands for making CDF f NN distances from Fiji 3DSuite results, with binning of similar object numbers
+# commands for making CDF of NN distances from Fiji 3DSuite results, with binning of similar object numbers
 
 require(spatstat)
 require(tidyverse)
@@ -37,28 +37,22 @@ counts_mod <- mutate(counts,
                  Treatment = count_treat, 
                  .after = Filename)
 
-# how many observations per group?
+# how many observations per group? (before filtering)
 # count number of rows; detects NAs ONLY if they are in the geno and treat columns
 table(geno, treat, useNA = "ifany") # number of distances
 table(count_geno, count_treat, useNA = "ifany")  # number of cells
 
 # ---- Select a bin of data (cells with similar particle counts) ----
 
-# 1-4 both: done
-# 5-8 both: no control cells
-# 1-4 nup, 5-8 erg: done
-# 1-4 nup, 9-12 erg: no control wt cells
-# 1-4 nup, 13-16 erg: no control cells
-
 min_nup <- 1
-max_nup <- 4
-min_erg <- 5
-max_erg <- 8
+max_nup <- 10
+min_erg <- 1
+max_erg <- 10
 
 binString <- paste0("Nup_",min_nup,"to",max_nup,"_Erg_",min_erg,"to",max_erg)
 
 # which images have the desired counts?
-filtered_counts <- counts |> 
+filtered_counts <- counts_mod |> 
   filter(between(Nup_Objects, min_nup, max_nup)) |>
   filter(between(Erg_Objects, min_erg, max_erg)) 
 
@@ -66,9 +60,11 @@ filtered_counts <- counts |>
 filtered_distances <- df_mod |> 
   filter(filename %in% filtered_counts$Filename)
 
-# see how many distances we have in each group now
+# see how many total distances we have in each group now
 table(filtered_distances$Genotype, filtered_distances$Treatment, useNA = "ifany") # number of distances
 
+# how many cells in each group after filtering
+table(filtered_counts$Genotype, filtered_counts$Treatment, useNA = "ifany") # number of distances
 
 # ---- Generate CDFs ----
 
@@ -118,6 +114,10 @@ table4 <- data.frame(Genotype = "CTY212",
                      BorderBorderDist = CTY212_DTT_dists)
 
 all_dists <- bind_rows(table1, table2, table3, table4)
+
+
+# see how many NN distances we have in each group now
+table(all_dists$Genotype, all_dists$Treatment, useNA = "ifany") # number of distances
 
 #plot a histogram
 # hist <- ggplot(data = all_dists,aes(x=BorderBorderDist,

@@ -54,7 +54,7 @@ CTY212_DTT_dists <- CTY212_DTT |>
 
 # check the answer
 CTY132_CON_distcols <- CTY132_CON |> select("V1")
-numDists <- sum(!is.na(CTY132_CON_distcols))
+numDists <- sum(!is.na(CTY132_CON_distcols)) # this should be the same as the length of CTY132_CON_dists
 
 # Combine everything back into a dataframe
 table1 <- data.frame(Genotype = "CTY132",
@@ -74,6 +74,11 @@ table4 <- data.frame(Genotype = "CTY212",
                      BorderBorderDist = CTY212_DTT_dists)
 
 all_dists <- bind_rows(table1, table2, table3, table4)
+
+
+# see how many NN distances we have in each group 
+table(all_dists$Genotype, all_dists$Treatment, useNA = "ifany") # number of distances
+
 
 #plot a histogram
 # hist <- ggplot(data = all_dists,aes(x=BorderBorderDist,
@@ -109,7 +114,7 @@ cdf_geno <- ggplot(all_dists, aes(x=BorderBorderDist, colour = Treatment)) +
   facet_wrap(~Genotype) +
   labs(x="Border-border distance, um",
        y = "Cumulative frequency",
-       title = "Cumulative nearest-neighbor distribution function G, Nup159 to LD")
+       title = "Cumulative nearest-neighbor distance distribution, Nup159 to LD")
 
 
 cdf_treat <- ggplot(all_dists, aes(x=BorderBorderDist, colour = Genotype)) +
@@ -117,7 +122,7 @@ cdf_treat <- ggplot(all_dists, aes(x=BorderBorderDist, colour = Genotype)) +
   facet_wrap(~Treatment) +
   labs(x="Border-border distance, um",
        y = "Cumulative frequency",
-       title = "Cumulative nearest-neighbor distribution function G, Nup159 to LD")
+       title = "Cumulative nearest-neighbor distance distribution, Nup159 to LD")
 
 ggsave(paste0(dataName,"_nn_cdf_by_genotype.png"), plot=cdf_geno, width=7, height = 7)
 ggsave(paste0(dataName,"_nn_cdf_by_treatment.png"), plot=cdf_treat, width=7, height = 7)

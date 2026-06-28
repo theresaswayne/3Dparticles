@@ -98,7 +98,7 @@ function processFile(inputFolder, outputFolder, fileName, fileNumber, minThresho
 
 	// Find seeds for the spots using 3d local maxima
 	selectWindow(fileName);
-	run("3D Maxima Finder", "minimmum="+minThresh+" radiusxy=2 radiusz=2 noise=250");
+	run("3D Maxima Finder", "minimmum="+minThresh+" radiusxy=2 radiusz=2 noise=300");
 	seedName = "peaks_" + basename;
 	
 	// Find spots with a radius of ~ 1 SD of the Gaussian fit
