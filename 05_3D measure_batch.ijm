@@ -69,8 +69,9 @@ while (nImages > 0) { // clean up open images
 //setBatchMode(false);
 run("Clear Results");
 
-elapsedTime = (getTime() - startTime)/1000;
-logString = "Finished in",elapsedTime,"sec";
+time = getTime();
+elapsedTime = (time - startTime)/1000;
+logString = "Finished in " + elapsedTime + " sec";
 File.append(logString, logFile);
 
 // save Log
@@ -110,7 +111,6 @@ function processFile(imgInputFolder, segInputFolder, outputFolder, imgFile, file
 	run("Clear Results");
 	
 	imgPath = imgInputFolder + File.separator + imgFile;
-
 
 	// determine the name of the file without extension
 	dotIndex = lastIndexOf(imgFile, ".");

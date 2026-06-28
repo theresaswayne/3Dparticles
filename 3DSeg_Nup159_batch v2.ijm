@@ -1,11 +1,11 @@
 //@File(label = "Input directory", style = "directory") inputDir
 //@File(label = "Output directory", style = "directory") outputDir
 //@String (label = "File suffix", value = ".tif") fileSuffix
-//@ int(label="Min threshold:")  minThresh
+//@ int(label="Min threshold for spots:")  minThresh
 
 // batch_3DSeg.ijm
 // ImageJ/Fiji script to process a batch of images
-// Applies 3D iterative thresholding using MSER criteria
+// Applies 3D spot segmentation using Gaussian criteria
 // Saves the 3D mask
 // Theresa Swayne, 2025
 //  -------- Suggested text for acknowledgement -----------
@@ -15,7 +15,6 @@
 
 // Input: A folder of single-channel Z stacks. Isotropic scaling is recommended.
 // Output: Label stacks showing detected objects.
-// User supplies minimum threshold at runtime. Other parameters are in the line calling "3D Iterative Thresholding"
 //	Limitation -- cannot have >1 dots in the filename
 // 	
 
@@ -97,12 +96,18 @@ function processFile(inputFolder, outputFolder, fileName, fileNumber, minThresho
 	//dupName = basename + "-c5";
 	//run("Duplicate...", "title="+dupName+" duplicate channels=5");
 
+	// Find seeds for the spots using 3d local maxima
 	selectWindow(fileName);
-	run("3D Iterative Thresholding", "min_vol_pix=4 max_vol_pix=2000 min_threshold="+minThreshold+" min_contrast=0 criteria_method=MSER threshold_method=STEP segment_results=Best value_method=1");
+	run("3D Maxima Finder", "minimmum="+minThresh+" radiusxy=2 radiusz=2 noise=250");
+	seedName = "peaks_" + basename;
+	
+	// Find spots with a radius of ~ 1 SD of the Gaussian fit
+	run("3D Spot Segmentation", "seeds_threshold=0 local_background=0 local_diff=700 radius_0=0 radius_1=0 radius_2=0 weigth=0 radius_max=4 sd_value=1.17 local_threshold=[Gaussian fit] seg_spot=Classical watershed volume_min=10 volume_max=100 seeds=" + seedName + " spots=" + basename + " radius_for_seeds=2 output=[Label Image] verbose");
+	
 	
 	// save the output, if any
-	if (isOpen("Objects")) {
-		selectWindow("Objects");
+	if (isOpen("Index")) {
+		selectWindow("Index");
 		outputName = basename + "_seg.tif";
 		saveAs("tiff", outputFolder + File.separator + outputName);
 	
