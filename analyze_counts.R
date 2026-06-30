@@ -5,7 +5,7 @@ require(tidyverse)
 require(ggplot2)
 require(dunn.test)
 
-# assumes we have a dataframe called df with the following structure
+# assumes we have a dataframe called counts with the following structure
 # Filename, Nup_objects, Erg_objects
 # containing counts of objects per image
 
@@ -15,26 +15,28 @@ require(dunn.test)
 # parse image filename to get genotype (1st 6 chars) 
 #    and treatment (search for CON or 6hr)
 dataName = "Nup_Erg"
-geno <- substr(df$Filename, 0, 6)
-treat <- substr(df$Filename, 8, 10)
+geno <- substr(counts$Filename, 0, 6)
+treat <- substr(counts$Filename, 8, 10)
+treat<- str_replace(treat, "6hr", "DTT")
+treat<- str_replace(treat, "CON", "Control")
 
-df_mod <- mutate(df, 
+counts_mod <- mutate(counts, 
              Genotype = geno, 
              Treatment = treat, 
              .after = Filename)
 
-# how many observations per group?
+# how many observations (cells) per group?
 # count number of rows; detects NAs ONLY if they are in the geno and treat columns
 table(geno, treat, useNA = "ifany") 
 
 # split the data by genotype, treatment
-CTY132_CON <- df_mod |> filter(Genotype == "CTY132" & Treatment == "CON")
-CTY132_DTT <- df_mod |> filter(Genotype == "CTY132" & Treatment == "6hr")
-CTY212_CON <- df_mod |> filter(Genotype == "CTY212" & Treatment == "CON")
-CTY212_DTT <- df_mod |> filter(Genotype == "CTY212" & Treatment == "6hr")
+CTY132_CON <- counts_mod |> filter(Genotype == "CTY132" & Treatment == "Control")
+CTY132_DTT <- counts_mod |> filter(Genotype == "CTY132" & Treatment == "DTT")
+CTY212_CON <- counts_mod |> filter(Genotype == "CTY212" & Treatment == "Control")
+CTY212_DTT <- counts_mod |> filter(Genotype == "CTY212" & Treatment == "DTT")
 
 
-nup_box <- ggplot(df_mod, aes(x=Treatment,y=Nup_Objects, fill = Treatment, na.rm = TRUE)) +
+nup_box <- ggplot(counts_mod, aes(x=Treatment,y=Nup_Objects, fill = Treatment, na.rm = TRUE)) +
   geom_boxplot() +
   scale_fill_manual(values = c("white", "grey")) +
   theme_minimal(base_size = 24) +
@@ -42,12 +44,12 @@ nup_box <- ggplot(df_mod, aes(x=Treatment,y=Nup_Objects, fill = Treatment, na.rm
   stat_summary(fun=mean, geom="point", shape=18,
                size=3, color="red") +
   theme(legend.position="none") +
-  labs(y = "Nup Puncta Per Cell")
+  labs(y = "Nup159 Puncta Per Cell")
 
 ggsave("nup_count_boxplot.png",plot=nup_box, width=7, height = 7)
 
 
-erg_box <- ggplot(df_mod, aes(x=Treatment,y=Erg_Objects, fill = Treatment, na.rm = TRUE)) +
+erg_box <- ggplot(counts_mod, aes(x=Treatment,y=Erg_Objects, fill = Treatment, na.rm = TRUE)) +
   geom_boxplot() +
   scale_fill_manual(values = c("white", "grey")) +
   theme_minimal(base_size = 24) +
@@ -55,7 +57,7 @@ erg_box <- ggplot(df_mod, aes(x=Treatment,y=Erg_Objects, fill = Treatment, na.rm
   stat_summary(fun=mean, geom="point", shape=18,
                size=3, color="red") +
   theme(legend.position="none") +
-  labs(y = "Erg Puncta Per Cell")
+  labs(y = "LDs Per Cell")
 
 ggsave("erg_count_boxplot.png",plot=erg_box, width=7, height = 7)
 
