@@ -1,4 +1,4 @@
-# commands for visualizing nearest-neighbor distances from Fiji 3DSuite results, with binning of similar object numbers
+# commands for visualizing nearest-neighbor distances from Fiji 3DSuite results, with optional binning of similar object numbers
 
 require(spatstat)
 require(tidyverse)
