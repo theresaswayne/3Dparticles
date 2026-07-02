@@ -88,11 +88,6 @@ table(counts_mod$Genotype, counts_mod$Treatment, useNA = "ifany")  # number of c
 
 # ---- Select a bin of data (cells with similar particle counts) ----
 
-min_nup <- 0
-max_nup <- 100
-min_erg <- 0
-max_erg <- 100
-
 binString <- paste0("Nup_",min_nup,"to",max_nup,"_Erg_",min_erg,"to",max_erg)
 
 # which images have the desired counts?
@@ -105,7 +100,7 @@ filtered_distances <- df_nn |>
   filter(filename %in% filtered_counts$Filename)
 
 # see how many distances we have in each group now
-table(filtered_distances$Genotype, df_nn$Treatment, useNA = "ifany") # number of distances
+table(filtered_distances$Genotype, filtered_distances$Treatment, useNA = "ifany") # number of distances
 
 # ---- Calculate average and median NN distances per group ----
 
