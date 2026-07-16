@@ -1,7 +1,7 @@
 //@File(label = "Output image folder:", style = "directory") imagePath
 //@File(label = "Output ROI folder:", style = "directory") roiPath
 //
-// crop_To_Roi.ijm
+// crop_To_Roi_cue5.ijm
 // ImageJ/Fiji macro by Theresa Swayne, Columbia University, 2017-2025
 // Input: An image or hyperstack and a set of ROIs in the ROI manager 
 // Output: A stack (or single plane) corresponding to each ROI, 
