@@ -184,11 +184,20 @@ function processFile(inputImageDir, inputLabelDir, imageSuffix, labelSuffix, out
 		Stack.setSlice(midslice);
 	}
 	if (channels > 1) {
-		// auto contrast all channels
+		// auto contrast all channels and fix colors specific to Cue5 images
 		Stack.setDisplayMode("color");
 		for (i = 1; i <= channels; i ++) {
 			Stack.setChannel(i);
 			resetMinAndMax;
+			if(i == 3) {
+				run("Grays");
+			}
+			if (i == 4) {
+				run("Red");
+			}
+			if (i == 5) {
+				run("Green");
+			}
 		}
 		if (is("composite")) {
 			Stack.setDisplayMode("composite"); // this command raises error if image is not composite
@@ -205,9 +214,6 @@ function processFile(inputImageDir, inputLabelDir, imageSuffix, labelSuffix, out
 	run("Select None");
 
 	if (is("composite")) {
-		Stack.setDisplayMode("color");
-		Stack.setChannel(3);
-		run("Grays")
 		Stack.setDisplayMode("composite"); // this command raises error if image is not composite
 		run("Stack to RGB", "keep"); // create an RGB image while keeping the original
 	}
