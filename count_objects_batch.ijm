@@ -10,7 +10,7 @@
 // Use 3D ROI Manager to count objects 
 //    and generate a table of the number of objects in channel A and channel B
 
-// Limitations: Assumes the filename format: CTY132-6hrDTT-013_roi_1-c5_resliced_seg.tif and CTY132-6hrDTT-013_roi_1-c5_resliced_seg.tif
+// Limitations: Assumes the filename format: CTY132-6hrDTT-013_roi_1-c4_resliced_seg.tif and CTY132-6hrDTT-013_roi_1-c5_resliced_seg.tif
 
 // ---- Setup ----
 
@@ -57,13 +57,13 @@ setBatchMode(true); // faster
 print("Analyzing objects:",objAName,"(object A) and",objBName,"(object B)");
 n = processFolder(objAFolder, objBFolder, outDir, suffix, objAName, objBName, dist); 
 setBatchMode(false);
-showMessage("Finished.");
+//showMessage("Finished.");
 run("Clear Results");
 elapsedTime = (getTime() - startTime)/1000;
 print("Finished",n,"images in",elapsedTime,"seconds"); 
 
 // save Log
-logName = "" + timeString + "_Log.txt";
+logName = "" + timeString + "_Count_Log.txt";
 selectWindow("Log");
 saveAs("text", outDir + File.separator + logName);
 

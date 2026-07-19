@@ -241,7 +241,5 @@ d_results <- data.frame(Comparison = d$comparisons, Z = d$Z, P_adjusted = d$P.ad
 
 write_csv(d_results, paste0(binString,"_nn_dunn_results.csv"))
 
-
-
 #geno_KS <- ks.test(BorderBorderDist ~ Genotype, data = all_dists)
 #treat_KS <- ks.test(BorderBorderDist ~ Treatment, data = all_dists)

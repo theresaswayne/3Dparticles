@@ -170,14 +170,14 @@ write_csv(how_many_cells, paste0(binString,"_ncells.csv"))
 # ---- Plots ----
 
 # compare groups in a density plot separated by genotype
-hist_geno <- ggplot(all_dists,aes(x=BorderBorderDist, colour = Treatment)) +
+hist_geno <- ggplot(combo_dists,aes(x=BorderBorderDist, colour = Treatment)) +
   geom_density() +
   facet_wrap(~Genotype) +
   labs(x="Border-border distance, um",
        title = paste0("Distances between Nup and Erg objects ",binString))
 
 # compare treatments
-hist_treat <- ggplot(all_dists,aes(x=BorderBorderDist, colour = Genotype)) +
+hist_treat <- ggplot(combo_dists,aes(x=BorderBorderDist, colour = Genotype)) +
   geom_density() +
   facet_wrap(~Treatment) +
   labs(x="Border-border distance, um",
@@ -187,7 +187,7 @@ ggsave(paste0(binString,"_density_by_genotype.png"), plot=hist_geno, width=7, he
 ggsave(paste0(binString,"_density_by_treatment.png"), plot=hist_treat, width=7, height = 7)
 
 # plot a cumulative distance function (frequency of the distances in the table)
-cdf_geno <- ggplot(all_dists, aes(x=BorderBorderDist, colour = Treatment)) +
+cdf_geno <- ggplot(combo_dists, aes(x=BorderBorderDist, colour = Treatment)) +
   stat_ecdf(geom = "step", pad=FALSE) +
   facet_wrap(~Genotype) +
   labs(x="Border-border distance, um",
@@ -195,7 +195,7 @@ cdf_geno <- ggplot(all_dists, aes(x=BorderBorderDist, colour = Treatment)) +
        title = paste0("Distances between Nup and Erg objects ",binString))
 
 
-cdf_treat <- ggplot(all_dists, aes(x=BorderBorderDist, colour = Genotype)) +
+cdf_treat <- ggplot(combo_dists, aes(x=BorderBorderDist, colour = Genotype)) +
   stat_ecdf(geom = "step", pad=FALSE) +
   facet_wrap(~Treatment) +
   labs(x="Border-border distance, um",
@@ -210,15 +210,15 @@ ggsave(paste0(binString,"_cdf_by_treatment.png"), plot=cdf_treat, width=7, heigh
 # statistical comparison of distributions using non-parametric Kolgomorov-Smirnov test
 # with Dunn's test for multiple comparisons
 
-x <- c(CTY132_CON_dists,
-          CTY132_DTT_dists,
-          CTY212_CON_dists,
-          CTY212_DTT_dists)
+x <- c(WT_CON$V1,
+          WT_DTT$V1,
+          CUE5_CON$V1,
+          CUE5_DTT$V1)
 
-g <- c(rep("CTY132_CON",length(CTY132_CON_dists)),
-           rep("CTY132_DTT",length(CTY132_DTT_dists)),
-               rep("CTY212_CON",length(CTY212_CON_dists)),
-                   rep("CTY212_DTT",length(CTY212_DTT_dists)))
+g <- c(rep("WT_CON",length(WT_CON$V1)),
+           rep("WT_DTT",length(WT_DTT$V1)),
+               rep("CUE5_CON",length(CUE5_CON$V1)),
+                   rep("CUE5_DTT",length(CUE5_DTT$V1)))
 
 d <- dunn.test(x, g,
                   method = "bonferroni",
@@ -231,3 +231,4 @@ write_csv(d_results, paste0(binString,"_dunn_results.csv"))
 
 #geno_KS <- ks.test(BorderBorderDist ~ Genotype, data = all_dists)
 #treat_KS <- ks.test(BorderBorderDist ~ Treatment, data = all_dists)
+

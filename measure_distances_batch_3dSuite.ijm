@@ -9,7 +9,7 @@
 // Take 2 label image stacks representing particles in 2 channels
 // Use ImageJ 3D Suite to measure minimum edge-edge distances 
 
-// Limitations: Assumes the filename format: CTY132-6hrDTT-013_roi_1-c5_resliced_seg.tif and CTY132-6hrDTT-013_roi_1-c5_resliced_seg.tif
+// Limitations: Assumes the filename format: CTY132-6hrDTT-013_roi_1-c4_resliced_seg.tif and CTY132-6hrDTT-013_roi_1-c5_resliced_seg.tif
 
 // ---- Setup ----
 
@@ -47,12 +47,12 @@ n=0;
 print("Analyzing distances from ",objAName,"(object A) to",objBName,"(object B)");
 n = processFolder(objAFolder, objBFolder, outDir, suffix, objAName, objBName, dist); 
 elapsedTime = (getTime() - startTime)/1000;
-showMessage("Finished.");
+//showMessage("Finished.");
 run("Clear Results");
 print("Finished",n,"images in",elapsedTime,"seconds"); 
 
 // save Log
-logName = "" + timeString + "_Log.txt";
+logName = "" + timeString + "_Distance_Log.txt";
 selectWindow("Log");
 saveAs("text", outDir + File.separator + logName);
 setBatchMode(false);

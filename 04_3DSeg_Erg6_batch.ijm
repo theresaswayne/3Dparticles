@@ -46,11 +46,11 @@ while (nImages > 0) { // clean up open images
 	close(); 
 }
 setBatchMode(false);
-print("Finished");
+print("Finished processing.");
 
 // save Log
 selectWindow("Log");
-saveAs("text", outputDir + File.separator + "Log.txt");
+saveAs("text", outputDir + File.separator + "Erg_Seg_Log.txt");
 
 // ---- Functions ----
 

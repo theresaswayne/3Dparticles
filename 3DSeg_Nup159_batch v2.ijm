@@ -15,7 +15,7 @@
 
 // Input: A folder of single-channel Z stacks. Isotropic scaling is recommended.
 // Output: Label stacks showing detected objects.
-//	Limitation -- cannot have >1 dots in the filename
+//	Limitation -- cannot have >1 dots in the filename (due to the peak finder)
 // 	
 
 // ---- Setup ----
@@ -96,14 +96,18 @@ function processFile(inputFolder, outputFolder, fileName, fileNumber, minThresho
 	//dupName = basename + "-c5";
 	//run("Duplicate...", "title="+dupName+" duplicate channels=5");
 
+	// rename sensibly
+	rename("orig");
+	
 	// Find seeds for the spots using 3d local maxima
-	selectWindow(fileName);
+	selectWindow("orig");
 	run("3D Maxima Finder", "minimmum="+minThresh+" radiusxy=2 radiusz=2 noise=300");
-	seedName = "peaks_" + basename;
+	seedName = "peaks_orig";
 	
 	// Find spots with a radius of ~ 1 SD of the Gaussian fit
-	run("3D Spot Segmentation", "seeds_threshold=0 local_background=0 local_diff=700 radius_0=0 radius_1=0 radius_2=0 weigth=0 radius_max=4 sd_value=1.17 local_threshold=[Gaussian fit] seg_spot=Classical watershed volume_min=10 volume_max=100 seeds=" + seedName + " spots=" + basename + " radius_for_seeds=2 output=[Label Image] verbose");
+	//run("3D Spot Segmentation", "seeds_threshold=0 local_background=0 local_diff=700 radius_0=0 radius_1=0 radius_2=0 weigth=0 radius_max=4 sd_value=1.17 local_threshold=[Gaussian fit] seg_spot=Classical watershed volume_min=10 volume_max=100 seeds=" + seedName + " spots=" + basename + " radius_for_seeds=2 output=[Label Image] verbose");
 	
+	run("3D Spot Segmentation", "seeds_threshold=0 local_background=0 local_diff=700 radius_0=0 radius_1=0 radius_2=0 weigth=0 radius_max=4 sd_value=1.17 local_threshold=[Gaussian fit] seg_spot=Classical watershed volume_min=10 volume_max=100 seeds=" + seedName + " spots=orig radius_for_seeds=2 output=[Label Image] verbose");
 	
 	// save the output, if any
 	if (isOpen("Index")) {
