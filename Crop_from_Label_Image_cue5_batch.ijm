@@ -228,6 +228,7 @@ function processFile(inputImageDir, inputLabelDir, imageSuffix, labelSuffix, out
 	selectImage(rgbID);
 	
 	// display ROIs on the image
+	run("Labels...", "color=white font=16 show draw bold"); // increase label size above the default
 	roiManager("Show All with labels");
 	run("Flatten"); // now we should have a new RGB with flattened overlay
 	flatID = getImageID();
