@@ -2,7 +2,7 @@
 // @File(label = "Output directory", style = "directory") outputdir
 // @String(label = "File suffix", value = ".tif") suffix
 //@ int(label="Channel to process:")  chan
-//@Double (label = "Reslice Z step size", value = 0.0645, stepSize=0.01) reslice
+//@Double (label = "Reslice Z step size", value = 0.0645, stepSize=0.001) reslice
 
 // Note: DO NOT DELETE OR MOVE THE FIRST FEW LINES -- they supply essential parameters.
 
@@ -29,11 +29,18 @@ run("Bio-Formats Macro Extensions"); // enables access to macro commands
 setBatchMode(true); 
 n = 0;
 
+
+// keep track of time
+startTime = getTime();
+
 // ---- Commands to run the processing functions
 
 processFolder(inputdir, outputdir, suffix, chan, reslice); // actually do the analysis
-showMessage("Finished.");
 setBatchMode(false);
+
+time = getTime();
+elapsedTime = (time - startTime)/1000;
+print("Finished in", elapsedTime , "sec");
 
 // ---- Function for processing folders
 function processFolder(inputdir, outputdir, suffix, chan, reslice) 
@@ -55,7 +62,7 @@ function processImage(inputdir, name, outputdir, suffix, chan, reslice)
 	// ---- Open image and get name, info
 	open(inputdir + File.separator + name);
 	print("processing image", name);
-	dotIndex = indexOf(name, ".");
+	dotIndex = lastIndexOf(name, ".");
 	basename = substring(name, 0, dotIndex);
 
 	getVoxelSize(voxwidth, voxheight, depth, unit);
@@ -64,7 +71,7 @@ function processImage(inputdir, name, outputdir, suffix, chan, reslice)
 	
 	// select the channel of interest
 	if (chan > channels) { // error in selection
-		showMessage("That channel does not exist in this data!");
+		showMessage("That channel does not exist in this file!");
 		continue; 
 		}
 	else {
