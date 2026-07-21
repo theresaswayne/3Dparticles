@@ -25,22 +25,36 @@
 
 // ---- Setup
 
+while (nImages>0) { // clean up open images
+	selectImage(nImages);
+	close();
+}
+run("Collect Garbage");
+		
 run("Bio-Formats Macro Extensions"); // enables access to macro commands
 setBatchMode(true); 
-n = 0;
-
+n=0;
+print("\\Clear"); // clear Log window
 
 // keep track of time
 startTime = getTime();
 
+print("Processing ",suffix,"images in folder", inputdir);
+print("Reslicing channel",chan,"to get a Z step size of",reslice);
+
 // ---- Commands to run the processing functions
 
-processFolder(inputdir, outputdir, suffix, chan, reslice); // actually do the analysis
+n = processFolder(inputdir, outputdir, suffix, chan, reslice); // actually do the analysis
 setBatchMode(false);
 
 time = getTime();
 elapsedTime = (time - startTime)/1000;
-print("Finished in", elapsedTime , "sec");
+print("Finished",n,"images in", elapsedTime , "sec");
+
+// save Log
+selectWindow("Log");
+saveAs("text", outputdir + File.separator + "Reslice_C" + chan +  "_Log.txt");
+
 
 // ---- Function for processing folders
 function processFolder(inputdir, outputdir, suffix, chan, reslice) 
@@ -49,10 +63,12 @@ function processFolder(inputdir, outputdir, suffix, chan, reslice)
 	for (i=0; i<list.length; i++) 
 		{
 	    if(File.isDirectory(inputdir + File.separator + list[i])) {
-			processFolder("" + inputdir +File.separator+ list[i]); }
+			n = processFolder("" + inputdir +File.separator+ list[i]); }
 	    else if (endsWith(list[i], suffix)) {
+	    	n = n+1;
 	       	processImage(inputdir, list[i], outputdir, suffix, chan, reslice); } 
 		}
+	return n;
 	}
 
 // ------- Function for processing individual files
@@ -96,6 +112,7 @@ function processImage(inputdir, name, outputdir, suffix, chan, reslice)
 		while (nImages > 0) {
 			close(); }
 			}
+		run("Collect Garbage");
 	
 	} // end processImage function
 	

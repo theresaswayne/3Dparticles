@@ -24,11 +24,15 @@ while (nImages>0) { // clean up open images
 	selectImage(nImages);
 	close();
 }
+run("Collect Garbage");
 print("\\Clear"); // clear Log window
 
 setBatchMode(true); // faster performance
 run("Bio-Formats Macro Extensions"); // support native microscope files
 
+
+// keep track of time
+startTime = getTime();
 
 // ---- Run ----
 
@@ -36,7 +40,7 @@ print("Starting");
 
 // Call the processFolder function, including the parameters collected at the beginning of the script
 
-processFolder(inputDir, outputDir, fileSuffix, minThresh);
+n = processFolder(inputDir, outputDir, fileSuffix, minThresh);
 
 // Clean up images and get out of batch mode
 
@@ -45,18 +49,21 @@ while (nImages > 0) { // clean up open images
 	close(); 
 }
 setBatchMode(false);
-print("Finished");
+
+time = getTime();
+elapsedTime = (time - startTime)/1000;
+print("Finished",n,"images in", elapsedTime , "sec");
 
 // save Log
 selectWindow("Log");
-saveAs("text", outputDir + File.separator + "Log.txt");
+saveAs("text", outputDir + File.separator + "Seg_Log.txt");
 
 // ---- Functions ----
 
 function processFolder(input, output, suffix, minthresh) {
 
 	// this function searches for files matching the criteria and sends them to the processFile function
-	filenum = -1;
+	filenum = 0;
 	print("Processing folder", input, "with minimum threshold",minthresh);
 	
 	// scan folder tree to find files with correct suffix
@@ -71,6 +78,7 @@ function processFolder(input, output, suffix, minthresh) {
 			processFile(input, output, list[i], filenum, minthresh); // passes the filename and parameters to the processFile function
 		}
 	}
+	return filenum;
 } // end of processFolder function
 
 

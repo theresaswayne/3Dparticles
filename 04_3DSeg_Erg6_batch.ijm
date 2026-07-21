@@ -25,11 +25,15 @@ while (nImages>0) { // clean up open images
 	selectImage(nImages);
 	close();
 }
+run("Collect Garbage");
 print("\\Clear"); // clear Log window
 
 //setBatchMode(true); // faster performance
 run("Bio-Formats Macro Extensions"); // support native microscope files
 
+
+// keep track of time
+startTime = getTime();
 
 // ---- Run ----
 
@@ -37,7 +41,7 @@ print("Starting");
 
 // Call the processFolder function, including the parameters collected at the beginning of the script
 
-processFolder(inputDir, outputDir, fileSuffix, localDiff);
+n = processFolder(inputDir, outputDir, fileSuffix, localDiff);
 
 // Clean up images and get out of batch mode
 
@@ -46,11 +50,14 @@ while (nImages > 0) { // clean up open images
 	close(); 
 }
 setBatchMode(false);
-print("Finished processing.");
+
+time = getTime();
+elapsedTime = (time - startTime)/1000;
+print("Finished",n,"images in", elapsedTime , "sec");
 
 // save Log
 selectWindow("Log");
-saveAs("text", outputDir + File.separator + "Erg_Seg_Log.txt");
+saveAs("text", outputDir + File.separator + "Seg_Log.txt");
 
 // ---- Functions ----
 
@@ -72,6 +79,7 @@ function processFolder(input, output, suffix, locdiff) {
 			processFile(input, output, list[i], filenum, locdiff); // passes the filename and parameters to the processFile function
 		}
 	}
+	return filenum;
 } // end of processFolder function
 
 
