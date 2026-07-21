@@ -28,7 +28,7 @@ while (nImages>0) { // clean up open images
 run("Collect Garbage");
 print("\\Clear"); // clear Log window
 
-//setBatchMode(true); // faster performance
+setBatchMode(true); // faster performance
 run("Bio-Formats Macro Extensions"); // support native microscope files
 
 
