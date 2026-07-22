@@ -29,10 +29,10 @@ max_dist <- 2.0
 
 # Particle counts
 
-min_nup <- 5
-max_nup <- 15
-min_erg <- 5
-max_erg <- 15
+min_nup <- 0
+max_nup <- 100
+min_erg <- 0
+max_erg <- 100
 
 # **** change data name and levels as needed here!! ****
 # parse image filename to get genotype (1st 6 chars) 
@@ -108,7 +108,9 @@ filtered_dist_summary <- filtered_distances |>
   group_by(Genotype, Treatment) |>
   summarise(Median_NN_Dist_Nup159toLD = median(V1),
             Average_NN_Dist_Nup159toLD = mean(V1),
-            SD_NN_Dist = sd(V1))
+            SD_NN_Dist = sd(V1),
+            TotalNup159 = n(),
+            TotalCells = n_distinct(filename))
 
 write_csv(filtered_dist_summary, paste0(binString,"_distance_summary.csv"))
 
@@ -119,7 +121,8 @@ filtered_contact_summary <- filtered_distances |>
   group_by(Genotype, Treatment) |>
   summarise("%Nup159PunctaInContactWithLD" = 100*sum(V1==0)/n(),
             "%Nup159<200nmFromLD" = 100*sum(V1<=0.2)/n(),
-            TotalNup159 = n())
+            TotalNup159 = n(),
+            TotalCells = n_distinct(filename))
 write_csv(filtered_contact_summary, paste0(binString,"_contact_summary.csv"))
 
 
