@@ -19,6 +19,8 @@ geno <- substr(counts$Filename, 0, 6)
 treat <- substr(counts$Filename, 8, 10)
 treat<- str_replace(treat, "6hr", "DTT")
 treat<- str_replace(treat, "CON", "Control")
+geno <- str_replace(geno, "CTY132","WT")
+geno <- str_replace(geno, "CTY212","Cue5∆")
 
 counts_mod <- mutate(counts, 
              Genotype = geno, 
@@ -30,10 +32,10 @@ counts_mod <- mutate(counts,
 table(geno, treat, useNA = "ifany") 
 
 # split the data by genotype, treatment
-CTY132_CON <- counts_mod |> filter(Genotype == "CTY132" & Treatment == "Control")
-CTY132_DTT <- counts_mod |> filter(Genotype == "CTY132" & Treatment == "DTT")
-CTY212_CON <- counts_mod |> filter(Genotype == "CTY212" & Treatment == "Control")
-CTY212_DTT <- counts_mod |> filter(Genotype == "CTY212" & Treatment == "DTT")
+CTY132_CON <- counts_mod |> filter(Genotype == "WT" & Treatment == "Control")
+CTY132_DTT <- counts_mod |> filter(Genotype == "WT" & Treatment == "DTT")
+CTY212_CON <- counts_mod |> filter(Genotype == "Cue5∆" & Treatment == "Control")
+CTY212_DTT <- counts_mod |> filter(Genotype == "Cue5∆" & Treatment == "DTT")
 
 
 nup_box <- ggplot(counts_mod, aes(x=Treatment,y=Nup_Objects, fill = Treatment, na.rm = TRUE)) +
@@ -100,3 +102,13 @@ erg_d_results <- data.frame(Comparison = erg_d$comparisons,
                             P_adjusted = erg_d$P.adjusted)
 
 write_csv(erg_d_results, "erg_dunn_results.csv")
+
+counts_summ <- counts_mod |>
+  group_by(Genotype, Treatment) |>
+  summarise(MeanNupPerCell = mean(Nup_Objects),
+            SDNupPerCell = sd(Nup_Objects),
+            MeanErgPerCell = mean(Erg_Objects),
+            SDErgPerCell = sd(Erg_Objects),
+            nCells = n())
+
+write_csv(counts_summ, "count_summary.csv")
