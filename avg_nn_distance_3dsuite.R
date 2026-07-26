@@ -21,7 +21,7 @@ require(ggpubr)
 
 # Name of the dataset
 
-dataName = "Nup159_to_LD"
+dataName = "Trial3"
 
 # Distances to consider
 
@@ -29,16 +29,15 @@ max_dist <- 2.0
 
 # Particle counts
 
-min_nup <- 0
-max_nup <- 100
-min_erg <- 0
-max_erg <- 100
+min_nup <- 5
+max_nup <- 15
+min_erg <- 5
+max_erg <- 15
 
-# **** change data name and levels as needed here!! ****
+# **** change as needed here!! ****
 # parse image filename to get genotype (1st 6 chars) 
 #    and treatment (search for CON or 6hr)
 
-dataName = "Nup159_to_LD"
 geno <- substr(df$filename, 0, 6)
 treat <- substr(df$filename, 8, 10)
 
@@ -101,6 +100,9 @@ filtered_distances <- df_nn |>
 
 # see how many distances we have in each group now
 table(filtered_distances$Genotype, filtered_distances$Treatment, useNA = "ifany") # number of distances
+
+# save the table of filtered NN distances
+write_csv(filtered_distances, paste0(dataName,"_",binString,"_filtered_distances.csv"))
 
 # ---- Calculate average and median NN distances per group ----
 
