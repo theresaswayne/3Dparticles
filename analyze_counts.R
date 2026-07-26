@@ -14,7 +14,7 @@ require(dunn.test)
 # **** change data name and levels as needed here!! ****
 # parse image filename to get genotype (1st 6 chars) 
 #    and treatment (search for CON or 6hr)
-dataName = "Nup_Erg"
+dataName = "Trial3"
 geno <- substr(counts$Filename, 0, 6)
 treat <- substr(counts$Filename, 8, 10)
 treat<- str_replace(treat, "6hr", "DTT")
@@ -46,9 +46,10 @@ nup_box <- ggplot(counts_mod, aes(x=Treatment,y=Nup_Objects, fill = Treatment, n
   stat_summary(fun=mean, geom="point", shape=18,
                size=3, color="red") +
   theme(legend.position="none") +
-  labs(y = "Nup159 Puncta Per Cell")
+  labs(y = "Nup159 Puncta Per Cell",
+       title = dataName)
 
-ggsave("nup_count_boxplot.png",plot=nup_box, width=7, height = 7)
+ggsave(paste0(dataName,"_nup_count_boxplot.png"),plot=nup_box, width=7, height = 7)
 
 
 erg_box <- ggplot(counts_mod, aes(x=Treatment,y=Erg_Objects, fill = Treatment, na.rm = TRUE)) +
@@ -59,9 +60,10 @@ erg_box <- ggplot(counts_mod, aes(x=Treatment,y=Erg_Objects, fill = Treatment, n
   stat_summary(fun=mean, geom="point", shape=18,
                size=3, color="red") +
   theme(legend.position="none") +
-  labs(y = "LDs Per Cell")
+  labs(y = "LDs Per Cell",
+       title=dataName)
 
-ggsave("erg_count_boxplot.png",plot=erg_box, width=7, height = 7)
+ggsave(paste0(dataName,"_erg_count_boxplot.png"),plot=erg_box, width=7, height = 7)
 
 # statistical comparison of distributions using non-parametric Kolgomorov-Smirnov test
 # with Dunn's test for multiple comparisons
@@ -90,7 +92,8 @@ nup_d_results <- data.frame(Comparison = nup_d$comparisons,
                             Z = nup_d$Z,
                             P_adjusted = nup_d$P.adjusted)
 
-write_csv(nup_d_results, "nup_dunn_results.csv")
+
+write_csv(nup_d_results, paste0(dataName,"_nup_count_dunn_results.csv"))
 
 
 erg_d <- dunn.test(ergCounts, groups,
@@ -101,7 +104,7 @@ erg_d_results <- data.frame(Comparison = erg_d$comparisons,
                             Z = erg_d$Z,
                             P_adjusted = erg_d$P.adjusted)
 
-write_csv(erg_d_results, "erg_dunn_results.csv")
+write_csv(erg_d_results, paste0(dataName,"_erg_count_dunn_results.csv"))
 
 counts_summ <- counts_mod |>
   group_by(Genotype, Treatment) |>
@@ -111,4 +114,5 @@ counts_summ <- counts_mod |>
             SDErgPerCell = sd(Erg_Objects),
             nCells = n())
 
-write_csv(counts_summ, "count_summary.csv")
+write_csv(counts_summ, paste0(dataName,"_count_summary.csv"))
+

@@ -112,7 +112,7 @@ filtered_dist_summary <- filtered_distances |>
             TotalNup159 = n(),
             TotalCells = n_distinct(filename))
 
-write_csv(filtered_dist_summary, paste0(binString,"_distance_summary.csv"))
+write_csv(filtered_dist_summary, paste0(dataName,"_",binString,"_distance_summary.csv"))
 
 
 # ---- Calculate % in contact ----
