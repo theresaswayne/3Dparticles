@@ -120,7 +120,7 @@ function processFile(inputImageDir, inputLabelDir, imageSuffix, labelSuffix, out
     }
     else{
 		dotIndex = lastIndexOf(fileName, ".");
-	    basename = File.getNameWithoutExtension(basename);
+	    basename = File.getNameWithoutExtension(fileName);
 		extension = substring(fileName, dotIndex);
     }
 	
