@@ -17,7 +17,6 @@
 
 //	Limitation -- cannot have >1 dots in the filename
 // 	
-
 // Updated to use 3D Manager 
 // see https://mcib3d.frama.io/3d-suite-imagej/plugins/3DManager/3D-Manager-macros/
 
@@ -38,7 +37,7 @@ startTime = getTime();
 getDateAndTime(year, month, dayOfWeek, dayOfMonth, hour, minute, second, msec);
 month = month+1;
 timeString = "" + year + "-" + month + "-" + dayOfMonth + "-" + hour + "-" + minute; // have to start with empty string
-logName = timeString + "_Log.txt";
+logName = timeString + "_3DMeasure_Log.txt";
 logFile = outputDir + File.separator + logName;
 logStartString = "Batch 3D Measure started " + timeString +"\n";
 if (File.exists(logFile)==false) { // start the file with headers
@@ -58,7 +57,7 @@ print("Starting");
 run("3D Manager Options", "volume feret centroid_(pix) centroid_(unit) distance_to_surface objects radial_distance distance_between_centers=0 distance_max_contact=0 drawing=Contour use_0");
 
 // Call the processFolder function, including the parameters collected at the beginning of the script
-processFolder(imageInputDir, segInputDir, outputDir, fileSuffix, objectName);
+n = processFolder(imageInputDir, segInputDir, outputDir, fileSuffix, objectName);
 
 // Clean up images and get out of batch mode
 
@@ -71,10 +70,10 @@ run("Clear Results");
 
 time = getTime();
 elapsedTime = (time - startTime)/1000;
-logString = "Finished in " + elapsedTime + " sec";
+logString = "Finished " + n + " images in " + elapsedTime + " sec";
 File.append(logString, logFile);
 
-// save Log
+//save Log
 //selectWindow("Log");
 //saveAs("text", outputDir + File.separator + "Log.txt");
 
@@ -98,6 +97,7 @@ function processFolder(imginput, seginput, output, suffix, objname) {
 			processFile(imginput, seginput, output, list[i], filenum, objname); // passes the filename and parameters to the processFile function
 		}
 	}
+	return filenum;
 } // end of processFolder function
 
 
