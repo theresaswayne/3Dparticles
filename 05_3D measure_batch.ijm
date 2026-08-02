@@ -29,7 +29,7 @@ while (nImages>0) { // clean up open images
 print("\\Clear"); // clear Log window
 run("Clear Results");
 
-//setBatchMode(true); // faster performance
+setBatchMode(true); // faster performance
 run("Bio-Formats Macro Extensions"); // support native microscope files
 
 // collect log in a table with a time/date stamp
@@ -54,7 +54,7 @@ print("Starting");
 
 // set up measurements
 // options: important to NOT show as IJ results table beause it conflicts with the other table
-run("3D Manager Options", "volume feret centroid_(pix) centroid_(unit) distance_to_surface objects radial_distance distance_between_centers=0 distance_max_contact=0 drawing=Contour use_0");
+run("3D Manager Options", "volume integrated_density mean_grey_value feret centroid_(pix) centroid_(unit) distance_to_surface objects radial_distance distance_between_centers=0 distance_max_contact=0 drawing=Contour use_0");
 
 // Call the processFolder function, including the parameters collected at the beginning of the script
 n = processFolder(imageInputDir, segInputDir, outputDir, fileSuffix, objectName);
@@ -65,7 +65,7 @@ while (nImages > 0) { // clean up open images
 	selectImage(nImages);
 	close(); 
 }
-//setBatchMode(false);
+setBatchMode(false);
 run("Clear Results");
 
 time = getTime();
@@ -83,7 +83,7 @@ File.append(logString, logFile);
 function processFolder(imginput, seginput, output, suffix, objname) {
 
 	// this function searches for files matching the criteria and sends them to the processFile function
-	filenum = -1;
+	filenum = 0;
 	print("Processing folder", imginput);
 	// scan folder tree to find files with correct suffix
 	list = getFileList(imginput);
@@ -193,10 +193,16 @@ function processFile(imgInputFolder, segInputFolder, outputFolder, imgFile, file
 			File.append(logString, logFile);
 			//print("Found", objCount, "objects in image", basename);
 			
+			selectWindow("dup"); // activate the ROIs on the fluorescence image
+			
+			Ext.Manager3D_Quantif();
+			Ext.Manager3D_SaveResult("Q", outputDir + File.separator + basename + "_" + objName + "_quant_results.csv");
+			Ext.Manager3D_CloseResult("Q");
+			
 			Ext.Manager3D_Measure(); 
 			// save results; M is prepended whether you want it or not
 			//Ext.Manager3D_SaveResult("M",subFolder + "allMeas.csv");
-			Ext.Manager3D_SaveResult("M", outputDir + File.separator + basename + "_" + objName + "_results.csv");
+			Ext.Manager3D_SaveResult("M", outputDir + File.separator + basename + "_" + objName + "_meas_results.csv");
 			Ext.Manager3D_CloseResult("M");
 			
 			// save results
