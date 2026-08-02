@@ -13,7 +13,7 @@ require(dunn.test)
 require(beeswarm)
 require(ggpubr)
 
-dataName = "trial 2 test"
+dataName = "replicate 3"
 
 # ---- Clean up data ----
 
@@ -58,17 +58,28 @@ dist_mod <-  mutate(dist_nn,
   mutate(filename = newDistFilename)
 
 quant_mod <-  mutate(quant, 
-                    Genotype = genoD, 
-                    Treatment = treatD, 
+                    Genotype = genoQ, 
+                    Treatment = treatQ, 
                     .after = filename) %>%
-  mutate(filename = newDistFilename) %>%
+  mutate(filename = newQuantFilename) %>%
   rename(Nup_Obj = Label)
 
 
 # ---- Combine the distance and intensity data into one dataframe ----
 # (each row = 1 Nup159 puncta)
 
+# Note that the number of observations may be different
+# Special cases -- presumably when there is no LD, there is no distance measured
+
+# Check for diffs -- if there are many, review analysis
+setdiff(quant_mod$filename, dist_mod$filename)
+
+# join the tables, ignoring any cells that do not have distance measurements
 combined <- left_join(dist_mod, quant_mod, by=join_by(filename, Nup_Obj, Genotype, Treatment))
+
+# Re-order so WT comes first 
+combined <- mutate(combined, Genotype = fct_relevel(Genotype, "WT", "cue5∆"))
+
 
 # ---- Calculations ----
 
@@ -99,9 +110,9 @@ NupContactByCell <- NupContactByCell %>%
   mutate(FxnIntDenContact = IntDenContact/(IntDenContact + IntDenNotContact))
 
 # Calculate overall % of puncta IntDen in contact
-totalContact = sum(NupContactTotals$IntDenContact)
-totalNotContact = sum(NupContactTotals$IntDenNotContact)
-totalFxnContact = totalContact/(totalContact + totalNotContact)
+#totalContact = sum(NupContactByCell$IntDenContact)
+#totalNotContact = sum(NupContactByCell$IntDenNotContact)
+#totalFxnContact = totalContact/(totalContact + totalNotContact)
 
 # Write table of cells
 cellTableName <- paste0(dataName, "_IntDenContact_byCell.csv")
@@ -116,6 +127,9 @@ NupContactByGroup <- NupContactByCell %>%
               nPuncta = sum(nPunctaContact + nPunctaNotContact),
             nCells = n())
             
+# Write summary
+groupTableName <- paste0(dataName, "_IntDenContact_byGroup.csv")
+write_csv(NupContactByGroup,groupTableName)
 
 
 # boxplot

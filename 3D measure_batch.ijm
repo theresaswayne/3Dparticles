@@ -12,7 +12,7 @@
 //   funded in part through the NIH/NCI Cancer Center Support Grant P30CA013696."
 
 // Input: 2 folders, of single-channel fluorescence images and label images showing segmented objects
-// Output: Measurements of position, size, intensity (1 table per image)
+// Output: Measurements of position, size, intensity (2 tables per image)
 // File name constraint: The label image name must be the name of the fluorescence image plus "_seg"
 
 //	Limitation -- cannot have >1 dots in the filename
@@ -103,12 +103,13 @@ function processFolder(imginput, seginput, output, suffix, objname) {
 
 function processFile(imgInputFolder, segInputFolder, outputFolder, imgFile, fileNumber, objName) {
 	
-	run("Fresh Start"); // clears log, results, etc.
 	// this function processes a single image
+	run("Fresh Start"); // clears log, results, etc.
 	// initialize 3D functions
 	run("3D Manager");
-	Ext.Manager3D_Reset();
-	run("Clear Results");
+	Ext.Manager3D_Close(); // suggested by  https://forum.image.sc/t/how-to-speed-up-adding-or-removing-objects-in-3d-manager/110750/5 to move mgr to background
+	//Ext.Manager3D_Reset();
+
 	
 	imgPath = imgInputFolder + File.separator + imgFile;
 
