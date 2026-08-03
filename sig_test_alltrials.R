@@ -13,14 +13,14 @@ require(ggpubr)
 
 # Name of the dataset
 
-dataName = "PercentInContact"
+dataName = "PercentIntDenInContact"
 
 # ---- Hypothesis testing ----
 
 # statistical comparison of distributions using non-parametric Kolgomorov-Smirnov test
 # with Dunn's test for multiple comparisons
 
-x <- trials$PctInContact # the values
+x <- trials$`Fraction of Puncta IntDen in Contact` # the values
 g <- trials$Condition # the groups
 
 # kw test will tell if there are any significant differences
@@ -51,19 +51,21 @@ d_one <- dunn.test(x, g,
 d_one_results <- data.frame(Comparison = d_one$comparisons, P_adjusted = d_one$P.adjusted)
 write_csv(d_two_results, paste0(dataName,"_1sided_dunn.test_results.csv"))
 
-# using the rstatix dunn_test function
+# summarize and test using the rstatix dunn_test function
 trials_summ <- trials |> group_by(Condition) |>
-  get_summary_stats(PctInContact, type = "mean_sd")
+  get_summary_stats(`Fraction of Puncta IntDen in Contact`, type = "mean_sd")
 write_csv(trials_summ, paste0(dataName,"_trials_summary.csv"))
 
-d_rstatix <- trials %>% dunn_test(PctInContact ~ Condition)
+trials_mod <- trials %>% rename("FxnIntDenContact" = "Fraction of Puncta IntDen in Contact")
+# note this fails for some datasets, not sure why
+d_rstatix <- trials_mod %>% group_by(Condition) %>% dunn_test(FxnIntDenContact ~ Condition)
 write_csv(d_rstatix, paste0(dataName,"_rstatix_dunn_results.csv"))
 
 # pairwise tests
-wt_con <- trials %>% filter(Condition == "WT Control") %>% select(PctInContact) %>% pull()
-wt_dtt <- trials %>% filter(Condition == "WT DTT") %>% select(PctInContact)  %>% pull()
-c5_con <- trials %>% filter(Condition == "cue5del Control") %>% select(PctInContact)  %>% pull()
-c5_dtt <- trials %>% filter(Condition == "cue5del DTT") %>% select(PctInContact)  %>% pull()
+wt_con <- trials %>% filter(Condition == "WT Control") %>% select(`Fraction of Puncta IntDen in Contact`) %>% pull()
+wt_dtt <- trials %>% filter(Condition == "WT DTT") %>% select(`Fraction of Puncta IntDen in Contact`)  %>% pull()
+c5_con <- trials %>% filter(Condition == "cue5∆ Control") %>% select(`Fraction of Puncta IntDen in Contact`)  %>% pull()
+c5_dtt <- trials %>% filter(Condition == "cue5∆ DTT") %>% select(`Fraction of Puncta IntDen in Contact`)  %>% pull()
 
 w_wt <- wilcox.test(wt_con, wt_dtt)
 w_c5 <- wilcox.test(c5_con, c5_dtt)
@@ -73,7 +75,7 @@ w_c5 <- w_c5 |> broom::tidy()
 
 w_combined <- rbind(w_wt, w_c5)
 w_combined <- w_combined %>% 
-  mutate(Comparison = c("WT Control vs DTT", "cue5del Control vs DTT"), .before=statistic)
+  mutate(Comparison = c("WT Control vs DTT", "cue5∆ Control vs DTT"), .before=statistic)
 
 write_csv(w_combined, paste0(dataName,"_wilcoxon.csv"))
 

@@ -7,11 +7,11 @@
 # Data should contain columns "Replicate" (integer or character) and "Condition" (identifying the group),
 # and another column with the name provided in measurementName below.
 
-measurementName <- "Distance_to_nearest_LD"
+measurementName <- "Fraction of Puncta IntDen in Contact"
 
 # ---- Setup ----
 require(ggplot2)
-require(dplyr)
+require(tidyverse)
 require(ggpubr) # for comparing means
 require(ggbeeswarm)
 
@@ -19,6 +19,8 @@ require(ggbeeswarm)
 #re-order factors
 combined <- mutate(combined, Condition = fct_relevel(Condition, "WT Control", "WT DTT", "cue5∆ Control", "cue5∆ DTT"))
 
+# Make Replicate into a factor to avoid weird plot legend
+combined$Replicate <- as.factor(combined$Replicate)
 
 # ---- Calculate the average of each replicate within each treatment (these will be the big dots) ----
 # note that !! and := are required if you want to rename with the value of a variable
@@ -34,7 +36,7 @@ ReplicateAverages <- combined %>%
 
 # save the replicate averages
 
-write_csv(ReplicateAverages, paste0(measurementName,"_replicate_avgs2.csv"))
+write_csv(ReplicateAverages, paste0(measurementName,"_replicate_avgs.csv"))
 
 
 # ---- Create the plot ----
@@ -43,21 +45,25 @@ write_csv(ReplicateAverages, paste0(measurementName,"_replicate_avgs2.csv"))
 # stat_compare_means can be added to compute p values and show them on the plot.
 # Methods are described in the documentation for ggpubr:compare_means
 
-# y=!!measurementName does not seem to work
-# cex
+# y=!!measurementName does not seem to work; include your measurement column name below for Y
+# cex controls width of swarm
+# corral avoids large amounts of one value running into each other
 
-super <- ggplot(combined, aes(x=Condition, y=Distance_to_nearest_LD, color=factor(Replicate))) + # y = your measurement column
-  geom_beeswarm(cex=0.05, alpha = 0.4) + scale_colour_brewer(palette = "Set1") +
-  geom_beeswarm(data=ReplicateAverages, size=8, line="black") +
+super <- ggplot(combined, aes(x=Condition, y=`Fraction of Puncta IntDen in Contact`, color=factor(Replicate))) + 
+  geom_beeswarm(size = 1, cex=1, corral = "wrap", alpha = 0.4) +
+  scale_colour_brewer(palette = "Set1") +
+  geom_beeswarm(data=ReplicateAverages, size=4, method = "swarm") +
   #stat_compare_means(data=ReplicateAverages, 
   #                   comparisons = list(c("Control", "Drug")), 
   #                   method="t.test", paired=FALSE) +
-  theme(legend.position="top")
+  theme(legend.position="right") +
+  labs(title = "Fraction of Nup159 Puncta Intensity in Contact with LDs",
+       color = "Replicate")
 
 # Show the plot in the plot window
 print(super)
 
 # save the plot
-ggsave(paste0(measurementName,"_superplot.png"), plot=super, width=10, height = 10)
+ggsave(paste0(measurementName,"_superplot2.png"), plot=super, width=8, height = 8)
 
 
