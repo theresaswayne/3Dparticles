@@ -50,7 +50,7 @@ montlist = Array.sort(montlist);
 montCount = montlist.length;
 
 // divide into batches
-batchSize = 2;
+batchSize = 8;
 sheetCount = Math.ceil(montCount/batchSize);
 
 print("There are",montCount, "montages, which we will display in",sheetCount,"contact sheets");
@@ -58,7 +58,7 @@ print("There are",montCount, "montages, which we will display in",sheetCount,"co
 for (i = 0; i < sheetCount; i++) { // loop through contact sheets
 	
 	print("Processing sheet",i);
-	showMessageWithCancel("Escape from infinite loop","Processing sheet "+i);
+	//showMessageWithCancel("Escape from infinite loop","Processing sheet "+i); // for debugging
 	// open a batch of images
 	for (j= 0; j < batchSize; j++) { // loop through images in the sheet
 		
@@ -112,6 +112,9 @@ setBatchMode("exit and display");
 time = getTime();
 elapsedTime = (time - startTime)/1000;
 print("Finished",n,"images in ", elapsedTime , " sec");
+
+selectWindow("Log");
+saveAs("text", outputDir + File.separator + "Cellbook_Log.txt");
 
 
 // ---- Functions ----
