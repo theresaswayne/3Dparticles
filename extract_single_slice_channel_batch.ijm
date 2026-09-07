@@ -37,7 +37,7 @@ print("Starting");
 
 // Call the processFolder function, including the parameters collected at the beginning of the script
 
-processFolder(inputDir, outputDir, fileSuffix, Channel_1, Slice_1);
+n = processFolder(inputDir, outputDir, fileSuffix, Channel_1, Slice_1);
 
 // Clean up images and get out of batch mode
 
@@ -49,7 +49,7 @@ setBatchMode(false);
 
 time = getTime();
 elapsedTime = (time - startTime)/1000;
-print("Finished in ", elapsedTime , " sec");
+print("Finished",n,"images in ", elapsedTime , " sec");
 
 
 // ---- Functions ----
@@ -57,7 +57,7 @@ print("Finished in ", elapsedTime , " sec");
 function processFolder(input, output, suffix, chan, slice) {
 
 	// this function searches for files matching the criteria and sends them to the processFile function
-	filenum = -1;
+	filenum = 0;
 	print("Processing folder", input);
 
 	// scan folder tree to find files with correct suffix
@@ -73,6 +73,7 @@ function processFolder(input, output, suffix, chan, slice) {
 			processFile(input, output, list[i], filenum, chan, slice); // passes the filename and parameters to the processFile function
 		}
 	}
+	return filenum;
 } // end of processFolder function
 
 

@@ -8,8 +8,8 @@
 
 // crop_from_label_image_batch.ijm
 // ImageJ/Fiji macro by Theresa Swayne, Columbia University, 2025-26
-// Process a batch of images and corresponding ROIsets to generate one image for each ROI, with the area outside cleared
-// optional adjustment of ROIs based on edge position and size
+// Process a batch of images and corresponding label (instance segmentation) images to generate one image for each label, with the area outside cleared
+// optional curation of ROIs based on edge position and size
 
 //  -------- Suggested text for acknowledgement -----------
 //   "These studies used the Confocal and Specialized Microscopy Shared Resource 

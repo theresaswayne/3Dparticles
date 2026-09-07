@@ -1,0 +1,3 @@
+ 
+
+python -m cellpose --dir "/Users/theresaswayne/Desktop/trans input" --pretrained_model cyto3 --save_png --chan 0 --diameter 60 --verbose 
